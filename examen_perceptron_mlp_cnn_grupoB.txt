@@ -1,0 +1,378 @@
+           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            EXAMEN TEÓRICO — PERCEPTRÓN, MLP Y CNN (GRUPO B)
+
+                            Eduardo Alcaraz
+           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+1 Datos del alumno
+══════════════════
+
+  ━━━━━━━━━━━
+   Nombre  FERNANDA ELIZABETH VELEZ ALEJANDRE  
+   Grupo   B 
+   Fecha   03 NOVIEMBRE 2026  
+  ━━━━━━━━━━━
+
+
+2 Pregunta 1 — Por qué no basta “una sola neurona”
+══════════════════════════════════════════════════
+
+  1. Resume el funcionamiento de un perceptrón como “regla de decisión”.
+  2. Explica la noción de *frontera lineal* sin escribir fórmulas.
+  3. Da un ejemplo (aunque sea inventado) donde esa frontera *no*
+     alcanza.
+
+
+2.0.1 Respuesta
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+
+  ┌────
+    1. ¿Cómo funciona un perceptrón como regla de decisión?
+    Un perceptrón puede imaginarse como una neurona muy sencilla que recibe varios datos de entrada, los toma en cuenta y después decide entre dos opciones.
+    Por ejemplo, si queremos decidir si una persona aprueba o no aprueba una materia, podemos darle como entradas sus horas de estudio y sus asistencias. El perceptrón analiza esos datos y produce una decisión, por ejemplo:
+      0 → no aprueba
+      1 → aprueba
+    Durante el entrenamiento, el perceptrón va ajustando la importancia que le da a cada entrada para tratar de tomar decisiones cada vez más correctas.
+
+    2. ¿Qué es una frontera lineal?
+    Una frontera lineal es una forma de separar dos grupos mediante una línea recta.
+    Imaginemos que tenemos puntos de dos colores en una hoja. Si podemos dibujar una sola línea recta que deje todos los puntos de un grupo de un lado y los del otro grupo del lado contrario, entonces esos datos pueden separarse mediante una frontera lineal.
+
+    3. Ejemplo donde esa frontera no alcanza
+    Un ejemplo es XOR.
+    Si tenemos dos entradas:
+    E1 E2	Resultado
+    0	 0	0
+    0	 1	1
+    1	 0	1
+    1	 1	0
+    Los resultados 1 quedan en posiciones que no pueden separarse de los resultados 0 utilizando solamente una línea recta.
+    Por eso, un solo perceptrón no es suficiente para resolver este tipo de problema.
+  └────
+
+
+3 Pregunta 2 — CNN: de píxeles a mapas
+══════════════════════════════════════
+
+  1. ¿Qué problema de *estructura espacial* ignora un MLP si aplana la
+     foto?
+  2. ¿Qué significa que un mismo filtro se aplique en toda la imagen?
+  3. Además de clasificación de objetos, cita *dos* usos donde la CNN
+     encaja bien.
+
+
+3.0.1 Respuesta
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+
+  ┌────
+    1. ¿Qué problema de estructura espacial ignora un MLP si aplana la foto?
+    Cuando un MLP recibe una imagen, normalmente se pueden convertir todos sus píxeles en una sola lista de números.
+    El problema es que al hacer esto se pierde la información de dónde está cada píxel con respecto a los demás.
+    Por ejemplo, en una imagen de un gato, no solamente importa el color de cada píxel, sino que ciertos píxeles están juntos y forman cosas como ojos, orejas o bordes.
+    Un MLP que recibe la imagen completamente aplanada no aprovecha directamente esa relación espacial.
+
+    2. ¿Qué significa que un mismo filtro se aplique en toda la imagen?
+    Significa que la CNN utiliza el mismo pequeño patrón o filtro y lo va moviendo por diferentes partes de la imagen para buscar una característica.
+    Por ejemplo, si un filtro aprende a detectar un borde, puede buscar ese borde en la parte superior, inferior, izquierda o derecha de la imagen.
+    Esto es útil porque una misma característica puede aparecer en diferentes lugares de una imagen.
+
+    3. Dos usos donde una CNN encaja bien
+      - Reconocimiento facial, porque puede encontrar características de una cara en una imagen.
+      - Detección de enfermedades en imágenes médicas, por ejemplo, para encontrar ciertos patrones en radiografías.
+  └────
+
+
+4 Pregunta 3 — Softmax, clases y decisiones
+═══════════════════════════════════════════
+
+  1. Diferencia un problema *binario* de uno *multiclase* en términos de
+     salida de la red.
+  2. ¿Qué lectura le das a las probabilidades que produce un softmax?
+  3. Imagina tres carpetas de imágenes (tres riesgos o tres animales):
+     ¿qué arquitectura de *salida* usarías y por qué?
+
+
+4.0.1 Respuesta
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+
+  ┌────
+    1. Diferencia entre un problema binario y uno multiclase
+    Un problema binario solamente tiene dos posibles resultados.
+    Por ejemplo: ¿La imagen contiene un gato?
+                  - Sí
+                  - No
+    En cambio, un problema multiclase tiene más de dos opciones.
+    Por ejemplo: ¿Qué animal aparece en la imagen?
+                  - Gato
+                  - Perro
+                  - Caballo
+                  - Pájaro
+    Por lo tanto, la salida de la red debe tener la cantidad de opciones que queremos distinguir.
+    
+    2. ¿Cómo interpretar las probabilidades de un softmax?
+    El softmax convierte las salidas de la red en valores que podemos interpretar como qué tan probable considera la red cada clase.
+    Por ejemplo: Clase	Probabilidad
+                 Gato	    0.10
+                 Perro	  0.80
+                 Caballo	0.10
+    En este caso, la red considera que perro es la opción más probable, porque tiene el valor más alto.
+    No significa necesariamente que tenga un 80% de certeza real; es mejor entenderlo como la confianza relativa que asigna el modelo entre las clases disponibles.
+
+    3. Tres carpetas de imágenes de riesgos
+    Usaría una arquitectura de salida multiclase con tres salidas y softmax, porque tenemos tres posibles clases y queremos que el modelo elija cuál de ellas corresponde a cada imagen.
+    Por ejemplo: Riesgo bajo / riesgo medio / riesgo alto
+    La salida tendría tres valores y la clase con el valor más alto sería la decisión final.
+  └────
+
+
+5 Pregunta 4 — MLP: profundidad con sentido
+═══════════════════════════════════════════
+
+  1. ¿Qué ganas al apilar capas densas con activaciones no lineales?
+  2. ¿Qué riesgo aparece si la red es *demasiado* grande para tus datos?
+  3. Relaciona “capa oculta” con la idea de aprender representaciones
+     intermedias (en palabras simples).
+
+
+5.0.1 Respuesta
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+
+  ┌────
+    1. ¿Qué ganas al apilar capas densas con activaciones no lineales?
+    Al agregar varias capas podemos hacer que la red aprenda relaciones más complicadas que las que podría aprender una sola capa.
+    Una forma sencilla de imaginarlo es:
+    Datos → primera capa → características más sencillas → siguiente capa → relaciones más complejas → resultado
+    Las activaciones no lineales son importantes porque permiten que la red pueda aprender relaciones que no se pueden representar simplemente con una línea recta.
+
+    2. ¿Qué riesgo aparece si la red es demasiado grande para tus datos?
+    Puede aparecer sobreajuste.
+    Esto significa que el modelo aprende demasiado bien los ejemplos que utilizó para entrenarse, incluso aprendiendo detalles o errores específicos de esos datos, pero después tiene problemas cuando recibe datos nuevos.
+    Es parecido a un estudiante que memoriza exactamente las preguntas de una guía, pero cuando el examen cambia un poco las preguntas ya no sabe resolverlas.
+
+    3. ¿Qué es una capa oculta?
+    Una capa oculta es una capa que está entre las entradas y la salida.
+    Podemos imaginar que cada capa va transformando la información poco a poco.
+    Por ejemplo: Datos originales → características sencillas → combinación de características → decisión final
+    Por eso se dice que las capas ocultas pueden aprender representaciones intermedias: no trabajan directamente con la respuesta final, sino que van encontrando características que ayudan a llegar a ella.
+  └────
+
+
+6 Pregunta 5 — Entrenamiento sin magia
+══════════════════════════════════════
+
+  1. Explica qué es una *época* a nivel intuitivo.
+  2. ¿Hacia qué “objetivo” se mueven los pesos cuando hablamos de
+     minimizar el error?
+  3. Si el learning rate es absurdo (muy grande o muy chico), ¿qué
+     síntomas conceptuales esperarías?
+
+
+6.0.1 Respuesta
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+
+  ┌────
+    1. ¿Qué es una época?
+    Una época es cuando el modelo ha pasado por todos los datos de entrenamiento una vez.
+    Por ejemplo, si tenemos 1,000 imágenes para entrenar:
+        - 1 época = el modelo procesa las 1,000 imágenes una vez.
+        - 10 épocas = las procesa 10 veces.
+    La idea es que el modelo tenga varias oportunidades para ir ajustando sus valores y mejorar.
+
+    2. ¿Hacia qué objetivo se mueven los pesos cuando minimizamos el error?
+    Los pesos se van ajustando buscando que las predicciones del modelo sean cada vez más parecidas a las respuestas correctas.
+    Dicho de forma sencilla: El modelo intenta disminuir la cantidad de errores que comete.
+    Los pesos son valores que determinan cuánto influye cada entrada en la decisión. Durante el entrenamiento se van modificando para intentar obtener mejores resultados.
+
+    3. ¿Qué pasa si el learning rate es demasiado grande o demasiado pequeño?
+    El learning rate determina qué tan grandes son los cambios que hace el modelo al ajustar sus pesos.
+    Si es demasiado grande, el modelo puede hacer cambios demasiado bruscos y puede tener problemas para encontrar una buena solución. Incluso puede saltarse constantemente la zona donde debería quedarse.
+    Si es demasiado pequeño, el modelo puede aprender muy lentamente y necesitar muchísimas épocas para mejorar.
+  └────
+
+
+7 Pregunta 6 — Bloques de una CNN
+═════════════════════════════════
+
+  Sin matemáticas, di el papel de cada pieza:
+  1. Kernel / filtro convolucional
+  2. Función de activación después de conv
+  3. Max pooling
+  4. Capa densa + softmax al final de un clasificador
+
+
+7.0.1 Respuesta
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+
+  ┌────
+    1. Kernel / filtro convolucional
+    Es como una pequeña ventana que se mueve por la imagen buscando determinadas características.
+    Por ejemplo, puede aprender a detectar:
+        - bordes
+        - líneas
+        - formas
+        - texturas
+    
+    2. Función de activación después de la convolución
+    Ayuda a que la red pueda aprender relaciones más complejas.
+    Sin esta función, la red tendría muchas más limitaciones para aprender patrones complicados.
+    Podemos pensar en ella como una parte que ayuda a decidir qué información obtenida de la imagen debe seguir pasando hacia las siguientes capas.
+
+    3. Max pooling
+    El max pooling reduce el tamaño de la información que se está manejando.
+    Se queda con los valores más importantes de una pequeña región.
+    Esto permite reducir información innecesaria y hacer que la red trabaje con una representación más pequeña, conservando características importantes.
+
+    4. Capa densa + softmax
+    Después de que la CNN ha encontrado características en la imagen, la capa densa utiliza esa información para llegar a una decisión.
+    El softmax convierte esa decisión en valores asociados a las diferentes clases.
+    Por ejemplo:  Gato: 0.05
+                  Perro: 0.90
+                  Conejo: 0.05
+    La red elegiría perro porque tiene el valor más alto.
+  └────
+
+
+8 Pregunta 7 — XOR y la historia del aprendizaje
+════════════════════════════════════════════════
+
+  1. ¿Por qué XOR se volvió un “contraejemplo” famoso?
+  2. ¿Qué elemento de un MLP permite patrones que no son una sola línea?
+  3. ¿En qué tipo de tabla/problema del mundo real seguirías usando algo
+     tan simple como un perceptrón o un modelo lineal?
+
+
+8.0.1 Respuesta
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+
+  ┌────
+    1. ¿Por qué XOR se volvió un contraejemplo famoso?
+    XOR se volvió famoso porque mostró una limitación importante de un perceptrón sencillo.
+    Como vimos anteriormente, los resultados de XOR no pueden separarse utilizando una sola línea recta.
+    Por lo tanto, un solo perceptrón no puede resolver correctamente este problema.
+
+    2. ¿Qué elemento de un MLP permite patrones que no son una sola línea?
+    Las capas ocultas junto con las funciones de activación no lineales permiten que el MLP aprenda relaciones mucho más complejas.
+    En lugar de intentar separar todos los datos con una sola línea, la red puede construir una separación más compleja a partir de varias transformaciones.
+
+    3. ¿Cuándo usarías un perceptrón o modelo lineal?
+    Lo utilizaría cuando el problema sea sencillo y los datos puedan separarse razonablemente con una relación lineal.
+    Por ejemplo, podríamos utilizarlo para una tabla donde queremos predecir si una persona cumple o no cumple un requisito, utilizando datos como edad, número de cursos aprobados o cierta puntuación, siempre que la relación entre los datos y la respuesta sea suficientemente sencilla.
+  └────
+
+
+9 Pregunta 8 — De lo simple a lo abstracto en visión
+════════════════════════════════════════════════════
+
+  1. Contrasta lo que buscan capas tempranas vs capas profundas en una
+     CNN.
+  2. ¿Qué intuición da eso para *transfer learning* (aunque no lo hayas
+     programado)?
+  3. ¿Cuándo sospecharías que tu CNN es “profunda de más” para el
+     dataset del curso?
+
+
+9.0.1 Respuesta
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+
+  ┌────
+    1. ¿Qué buscan las capas tempranas y profundas de una CNN?
+    Las capas tempranas suelen encontrar características más sencillas de la imagen.
+    Por ejemplo:
+      - líneas,
+      - bordes,
+      - pequeños patrones.
+    Conforme avanzamos hacia capas más profundas, la red puede combinar esas características para reconocer elementos más complejos.
+    Por ejemplo:
+    Bordes → formas → partes de objetos → objeto completo
+    Así, una CNN puede comenzar detectando cosas muy simples y terminar reconociendo algo más completo.
+
+    2. ¿Qué intuición da esto para transfer learning?
+    La idea es que las primeras capas de una CNN pueden aprender características que sirven para muchas imágenes diferentes.
+    Por ejemplo, detectar bordes o formas básicas puede ser útil tanto para reconocer perros como automóviles.
+    Por eso, en transfer learning se puede aprovechar una red que ya aprendió características generales y después adaptarla a un nuevo problema, en lugar de empezar completamente desde cero.
+
+    3. ¿Cuándo sospecharías que una CNN es demasiado profunda?
+    Sospecharía que es demasiado profunda si el conjunto de datos del curso es pequeño y el modelo tiene muchísima capacidad para aprender.
+    Una señal importante sería que el modelo obtiene resultados muy buenos con los datos de entrenamiento, pero resultados mucho peores con datos nuevos o de validación.
+    Eso podría indicar sobreajuste.
+  └────
+
+
+10 Pregunta 9 — Análisis: matching problema → modelo
+════════════════════════════════════════════════════
+
+  Elige *Perceptrón/lineal* / *MLP* / *CNN* (una opción) y justifica en
+  una frase:
+
+  1. Predecir “compra / no compra” con edad, ingreso y visitas a la web
+     (columnas numéricas).
+  2. Detectar si hay un gato en una foto.
+  3. Aproximar una frontera “curva” o a trozos en datos 2D tabulares.
+  4. ¿CNN es la herramienta natural para predecir la siguiente palabra
+     de un párrafo? Justifica y nombra una familia del curso más
+     adecuada (RNN/Transformer a nivel nombre).
+
+
+10.0.1 Respuesta
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+
+  ┌────
+    1. Predecir “compra / no compra” con edad, ingreso y visitas a la web
+    Respuesta: Perceptrón/lineal.
+    Elegiría un modelo lineal porque tenemos datos numéricos en forma de columnas y solamente queremos decidir entre dos opciones: compra o no compra.
+    Es un problema relativamente sencillo y no estamos trabajando directamente con imágenes.
+
+    2. Detectar si hay un gato en una foto
+    Respuesta: CNN.
+    Elegiría una CNN porque estamos trabajando con una imagen y necesitamos aprovechar la información espacial de los píxeles para encontrar características como bordes, formas y partes del gato.
+
+    3. Aproximar una frontera curva o a trozos en datos 2D tabulares
+    Respuesta: MLP.
+    Elegiría un MLP porque los datos siguen siendo tabulares, pero la separación entre las clases ya no es una simple línea.
+    Las capas ocultas y las activaciones no lineales permiten aprender fronteras más complicadas.
+
+    4. ¿CNN es la herramienta natural para predecir la siguiente palabra?
+    Respuesta: No.
+    Una CNN no sería la opción natural para este problema porque estamos trabajando con una secuencia de palabras, donde el orden y el contexto de las palabras son muy importantes.
+    Para este problema sería más adecuado utilizar una familia como RNN o Transformer, porque están diseñadas para trabajar con información secuencial y contexto.
+  └────
+
+
+11 Pregunta 10 — Análisis: auditoría de un equipo
+═════════════════════════════════════════════════
+
+  Un equipo entrega un modelo “muy preciso” en su laptop y falla con
+  datos nuevos.
+
+  1. ¿Qué diagnósticos conceptuales harías *antes* de tocar
+     hiperparámetros al azar?
+  2. Pide *dos* evidencias que deberían mostrar en la defensa (curvas,
+     separación train/val, ejemplos de error, etc.).
+  3. Redacta *tres* preguntas tuyas para comprobar si saben cuándo usar
+     perceptrón, MLP o CNN (distintas a las del Grupo A si las conoces).
+
+
+11.0.1 Respuesta
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+
+  ┌────
+    1. ¿Qué diagnósticos haría antes de cambiar hiperparámetros?
+    Primero investigaría si existe sobreajuste.
+    Compararía cómo funciona el modelo con los datos de entrenamiento y con datos de validación o prueba.
+    También revisaría si los datos de entrenamiento y los datos nuevos son realmente parecidos y si existe algún problema en la forma en que se separaron los datos.
+    No empezaría simplemente cambiando valores al azar, porque primero necesitamos saber cuál es el problema.
+
+    2. Dos evidencias que deberían mostrar
+    Primera evidencia: curvas de entrenamiento y validación.
+      Por ejemplo, una gráfica donde podamos observar cómo cambia el error del entrenamiento y de validación a lo largo de las épocas.
+      Esto nos puede ayudar a detectar si el modelo aprende muy bien los datos de entrenamiento pero empeora con datos de validación.
+    Segunda evidencia: ejemplos de errores.
+      Mostraría algunos ejemplos en los que el modelo se equivocó.
+      Esto nos permitiría observar si los errores tienen algún patrón, por ejemplo, si confunde constantemente dos clases específicas.
+
+    3. Tres preguntas para comprobar si saben cuándo utilizar cada modelo
+    Pregunta 1: Si tienes datos numéricos que pueden separarse aproximadamente con una línea y solamente necesitas clasificar entre dos grupos, ¿qué modelo elegirías y por qué?
+    Pregunta 2: Si tienes datos tabulares donde las clases no pueden separarse fácilmente con una línea recta, ¿por qué podría ser mejor utilizar un MLP?
+    Pregunta 3: Si quieres clasificar fotografías de diferentes animales, ¿por qué una CNN sería más adecuada que un MLP que recibe todos los píxeles como una lista?
+  └────
