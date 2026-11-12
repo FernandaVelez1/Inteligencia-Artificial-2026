@@ -1,0 +1,231 @@
+           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+             10 PREGUNTAS REDES NEURONALES CONVOLUCIONALES
+                                 (CNN)
+                                 
+               ALUMNA: FERNANDA ELIZABETH VELEZ ALEJANDRE
+           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+2 Pregunta 1 — Convolución a mano (3×3)
+═══════════════════════════════════════
+
+  Tienes este trozo de imagen en escala de grises (un canal) y este
+  kernel:
+
+  ┌────
+  │   Imagen 5×5                 Kernel 3×3
+  │   0  0  1  0  0              1  0 -1
+  │   0  1  2  1  0              1  0 -1
+  │   1  2  3  2  1              1  0 -1
+  │   0  1  2  1  0
+  │   0  0  1  0  0
+  └────
+
+  Tareas:
+  1. Con stride = 1 y padding valid (sin relleno), ¿cuál es el tamaño del mapa de salida?
+  2. Calcula solo el valor de la esquina superior izquierda del mapa (la primera posición del filtro). Muestra la suma de productos.
+  3. ¿Este kernel parece detectar bordes verticales u horizontales? Justifica mirando los signos.
+
+  Respuestas:
+  1. El tamaño de salida es de 3×3.
+     • Explicación: Usamos la fórmula [(N - K) / S] + 1 -> [(5 - 3) / 1] + 1 = 3. Como el filtro de 3×3 no puede salirse del cuadro de 5×5, solo cabe en 3 posiciones a lo ancho y 3 a lo alto.
+
+  2. El valor es -5.
+     • Explicación: Tomamos el cuadro 3×3 de arriba a la izquierda de la imagen y multiplicamos cada número por su misma posición en el kernel:
+       Fila 1: (0·1) + (0·0) + (1·-1) = -1
+       Fila 2: (0·1) + (1·0) + (2·-1) = -2
+       Fila 3: (1·1) + (2·0) + (3·-1) = 1 - 3 = -2
+       Sumamos todo: -1 - 2 - 2 = -5.
+
+  3. Detecta bordes verticales.
+     • Explicación: Tiene signos positivos (+1) en la columna izquierda y negativos (-1) en la derecha. Esto resta los píxeles de la derecha a los de la izquierda, detectando cambios bruscos de luz de lado a lado (una línea vertical).
+
+
+3 Pregunta 2 — Contar pesos
+═══════════════════════════
+
+  Una imagen RGB de 28×28×3. Compara dos modelos:
+  • Modelo A (MLP ingenuo): aplastas la imagen a un vector y conectas todas las entradas a una capa densa de 64 neuronas (sin bias por ahora).
+  • Modelo B (CNN): una Conv2D con 16 filtros de 3×3, padding 'same', sobre la misma imagen (con bias: un bias por filtro).
+
+  Tareas:
+  1. ¿Cuántos pesos tiene la capa densa del Modelo A? (fórmula y número)
+  2. ¿Cuántos parámetros tiene la Conv2D del Modelo B? (pesos de kernels + biases)
+  3. En una frase: ¿por qué la CNN suele generalizar mejor con el mismo número de imágenes de entrenamiento?
+
+  Respuestas:
+  1. 150,528 pesos.
+     • Explicación: Fórmula = Entradas × Neuronas. Primero sacamos el total de valores de la imagen: 28 × 28 × 3 = 2,352 entradas. Luego multiplicamos por las 64 neuronas: 2,352 × 64 = 150,528.
+
+  2. 448 parámetros.
+     • Explicación: Fórmula = (Alto × Ancho × Canales × Filtros) + Bias. Cada filtro mide 3×3×3 = 27 pesos. Como son 16 filtros: 27 × 16 = 432 pesos. Más 16 biases (uno por filtro): 432 + 16 = 448.
+
+  3. Porque al reutilizar los mismos pocos pesos (448 vs 150,528) por toda la foto, aprende a buscar formas generales en lugar de memorizar píxeles fijos, evitando el sobreajuste.
+
+
+4 Pregunta 3 — ¿Qué cambia si meto más capas?
+═════════════════════════════════════════════
+
+  Parte del notebook CNNriesgo (simplificado):
+  Entrada (21×28×3) → Conv2D(32, 3×3, same) + LeakyReLU → MaxPool(2×2) → Flatten → Dense(32) → Dense(nClasses, softmax)
+  Quieres apilar un segundo bloque convolucional antes del Flatten:
+  … → Conv2D(32) → Pool → Conv2D(64, 3×3, same) → Pool → Flatten → …
+
+  Tareas:
+  1. Tras el primer MaxPool(2×2) con padding same sobre 21×28, ¿qué tamaño aproximado (alto×ancho) esperas?
+  2. ¿Qué significan ahora los 64 filtros de la segunda Conv2D: detectan bordes “crudos” o patrones más compuestos? Explica con la analogía de la lupa / capas abstractas.
+  3. Riesgo: si añades muchas capas Conv+Pool con pocas imágenes, ¿qué falla típico verías en las curvas train vs validation? ¿Qué harías primero para mitigarlo (Dropout, más datos, menos filtros…)? Elige una medida y justifica.
+
+  Respuestas:
+  1. Tamaño aproximado de 11×14 (o 10×14 redondeando hacia abajo).
+     • Explicación: El MaxPool(2×2) reduce las dimensiones a la mitad: 21 / 2 = 10.5 (11 con padding same) y 28 / 2 = 14.
+
+  2. Detectan patrones más compuestos.
+     • Explicación: En la primera capa la "lupa" ve píxeles individuales y detecta bordes simples (líneas). En la segunda capa, como la imagen ya se resumió, la lupa abarca una zona más amplia y une esas líneas para detectar formas complejas (ojos, curvas, texturas).
+
+  3. Verías sobreajuste (overfitting): el error de train baja casi a cero mientras el de validation sube.
+     • Medida y justificación: Usaría más datos (o Data Augmentation para girar/mover las fotos actuales), porque al darle más variedad de ejemplos impedimos que una red tan grande se aprenda de memoria las pocas fotos que tiene.
+
+
+5 Pregunta 4 — Formas: de volumen a vector
+══════════════════════════════════════════
+
+  Supón que, justo antes del Flatten, el tensor tiene forma (7, 7, 64) (una sola imagen).
+
+  Tareas:
+  1. ¿Cuántos números salen del Flatten? (un solo entero)
+  2. Si la siguiente Dense tiene 32 neuronas (con bias), ¿cuántos parámetros tiene esa Dense?
+  3. Si en vez de Flatten usas Global Average Pooling (un promedio por canal), ¿qué forma tendrías a la salida y cuántos valores serían? ¿Ventaja frente a Flatten cuando la imagen de entrada es más grande?
+
+  Respuestas:
+  1. 3,136 números.
+     • Explicación: Flatten aplana el bloque multiplicando alto × ancho × canales: 7 × 7 × 64 = 3,136.
+
+  2. 100,384 parámetros.
+     • Explicación: Fórmula = (Entradas × Neuronas) + Bias -> (3,136 × 32) + 32 = 100,352 + 32 = 100,384.
+
+  3. La forma sería (64,) con 64 valores en total.
+     • Explicación y ventaja: Saca un solo promedio por cada uno de los 64 canales de 7×7. Su ventaja es que ahorra miles de parámetros (evitando sobreajuste) y siempre entrega 64 valores sin importar qué tan grande sea la imagen de entrada.
+
+
+6 Pregunta 5 — Softmax y el error “casi seguro”
+═══════════════════════════════════════════════
+
+  Una CNN de 3 clases (inundación, incendio, tornado) saca tras softmax: P = [0.10, 0.05, 0.85].
+  La etiqueta verdadera (one-hot) es [0, 1, 0] (incendio).
+
+  Tareas:
+  1. ¿Qué clase predice el modelo (argmax)?
+  2. ¿Está “seguro” o “confundido”? Usa los números, no adjetivos vacíos.
+  3. Sin calcular la fórmula exacta: argumenta si la categorical crossentropy de este ejemplo será alta o baja, y por qué.
+
+  Respuestas:
+  1. Predice "tornado" (la tercera clase, porque 0.85 es el valor más alto).
+
+  2. Está muy seguro (pero equivocado), ya que asigna un 85% de probabilidad (0.85) a tornado, dejando solo 10% (0.10) a inundación y 5% (0.05) a incendio.
+
+  3. Será muy alta.
+     • Explicación: La función crossentropy evalúa qué probabilidad le diste a la respuesta correcta (incendio = 0.05). Como 0.05 es casi cero, aplica un castigo enorme para corregir que el modelo estuviera tan seguro de una respuesta incorrecta.
+
+
+7 Pregunta 6 — Padding, stride y “se me achicó la imagen”
+═════════════════════════════════════════════════════════
+
+  Entrada 32×32, kernel 5×5, un filtro, un canal.
+
+  Tareas:
+  1. Completa la tabla (escribe el alto×ancho de salida).
+  2. Si encadenas tres MaxPool(2×2) seguidos sobre una imagen 32×32, ¿qué problema práctico aparece para clasificar objetos pequeños o detalles finos?
+
+  Respuestas:
+  1. Tabla de salida:
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      padding  stride  salida (alto×ancho) 
+     ──────────────────────────────────────
+      valid         1        28×28         
+      valid         2        14×14         
+      same          1        32×32         
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     • Explicación del cálculo:
+       - valid, stride 1: [(32 - 5) / 1] + 1 = 27 + 1 = 28 (28×28).
+       - valid, stride 2: [(32 - 5) / 2] + 1 = ⌊13.5⌋ + 1 = 13 + 1 = 14 (14×14).
+       - same, stride 1: Rellena bordes para mantener el mismo tamaño original (32×32).
+
+  2. Los objetos pequeños desaparecen porque la imagen pierde demasiada resolución.
+     • Explicación: Al dividir a la mitad tres veces (32 → 16 → 8 → 4), la imagen termina siendo una cuadrícula minúscula de 4×4 donde todos los detalles finos se borraron.
+
+
+8 Pregunta 7 — Dropout: ¿dónde y para qué?
+══════════════════════════════════════════
+
+  En CNNriesgo hay Dropout(0.5) después del pooling y otra vez antes de la salida.
+
+  Tareas:
+  1. Durante entrenamiento, ¿qué hace Dropout(0.5) en una capa densa de 32 neuronas (en promedio cuántas “sobreviven” por paso)?
+  2. Durante inferencia (predict), ¿se apagan neuronas al azar? ¿Por qué sí o no?
+  3. Un compañero pone Dropout solo en la última época “para que no se sobreajuste al final”. ¿Tiene sentido? Critica la idea en 3–5 líneas.
+
+  Respuestas:
+  1. Apaga al azar el 50% de las neuronas en cada paso, por lo que sobreviven en promedio 16 neuronas.
+
+  2. No se apagan. En inferencia (predict) queremos usar toda la capacidad aprendida por la red y que el resultado sea estable (siempre el mismo para la misma foto).
+
+  3. No tiene sentido. El Dropout sirve para que durante todo el entrenamiento ninguna neurona dependa de otra y todas aprendan por igual. Si lo activas solo en la última época, la red ya se habrá sobreajustado en las épocas anteriores y apagarle la mitad de las neuronas al final solo arruinará sus predicciones sin tiempo de corregirse.
+
+
+9 Pregunta 8 — Diseño: 5 clases de animales
+═══════════════════════════════════════════
+
+  Debes adaptar CNNriesgo a: ranas, arañas, monos, ballenas, pájaros.
+
+  Tareas:
+  1. ¿Cuántas neuronas debe tener la última Dense y qué activación? ¿Por qué?
+  2. Si todas las fotos entran a 224×224×3 pero el modelo tiene input_shape=(21,28,3), ¿qué debe pasar antes del fit? (una frase operativa)
+  3. Propón una mejora de arquitectura (segundo Conv, BatchNorm, data augmentation…) y di qué síntoma en train/val te haría pensar que esa mejora era necesaria.
+
+  Respuestas:
+  1. Debe tener 5 neuronas con activación softmax, porque son 5 clases distintas y softmax entrega la probabilidad de cada animal sumando 100% en total.
+
+  2. Se deben redimensionar (resize) todas las imágenes a 21×28×3 antes de entrenar (o cambiar el input_shape del modelo a 224×224×3).
+
+  3. Mejora: Añadir Data Augmentation.
+     • Síntoma: Ver que la exactitud en entrenamiento (train) sube casi al 100% pero en validación (val) se estanca baja, lo que indica que el modelo está memorizando las fotos y necesita más variedad.
+
+
+10 Pregunta 9 — CNN vs MLP vs RNN (mismo problema, mala herramienta)
+════════════════════════════════════════════════════════════════════
+
+  Tareas:
+  1. Elige CNN, MLP o RNN/Transformer y justifica en una frase cada uno:
+     a) Predecir si un alumno aprueba con promedio, faltas y horas de estudio (tabla).
+     b) Clasificar fotos de semáforo (rojo / amarillo / verde).
+     c) Autocompletar la siguiente línea de código dado el prefijo escrito.
+  2. Si aplastas la foto del semáforo y usas un MLP “grande”, ¿puede aprender? ¿Qué sacrificas respecto a una CNN?
+
+  Respuestas:
+  1. Elección por escenario:
+     a) MLP: Porque son datos sueltos en una tabla donde no importa la posición espacial ni hay secuencia en el tiempo.
+     b) CNN: Porque es una imagen 2D donde necesitamos detectar formas y colores usando la cercanía de los píxeles.
+     c) RNN / Transformer: Porque el código es una secuencia de texto donde el orden de las palabras anteriores define qué sigue.
+
+  2. Sí puede aprender, pero sacrificas la invariancia espacial (si el semáforo se mueve un poco en la foto, el MLP falla) y gastas muchísimos más parámetros, necesitando miles de fotos extra para no memorizar.
+
+
+11 Pregunta 10 — Experimento mental: mover un gato
+══════════════════════════════════════════════════
+
+  Entrenaste una CNN que detecta “hay un gato” en fotos 64×64. En el test, el mismo gato aparece corrido 10 píxeles a la derecha, mismo fondo, misma escala.
+
+  Tareas:
+  1. ¿Por qué una CNN tiene más chance de seguir acertando que un MLP que ve el vector aplastado? (pesos compartidos / detección local)
+  2. Si en vez de correrlo lo giraras 90° y nunca viste gatos de lado en el train, ¿la CNN “mágica” garantiza acierto? ¿Qué haría falta?
+  3. Escribe una pregunta que tú le harías a un compañero para comprobar si entendió qué son los pesos del kernel.
+
+  Respuestas:
+  1. Porque la CNN desliza el mismo filtro (pesos compartidos) por toda la imagen; si aprendió a detectar orejas en el centro, ese mismo filtro las detectará igual 10 píxeles a la derecha. El MLP falla porque busca el gato únicamente en los píxeles exactos donde lo vio antes.
+
+  2. No garantiza acierto y probablemente falle, porque los filtros reconocen formas en la orientación en que fueron entrenados (no son resistentes a giros por sí solos). Haría falta aplicar Data Augmentation rotando las imágenes durante el entrenamiento.
+
+  3. Pregunta: "¿Los números dentro del kernel los escribe el programador a mano o cómo se obtienen?"
+     • (Respuesta esperada: Empiezan al azar y la red los ajusta sola durante el entrenamiento para aprender a detectar bordes y formas).
+
